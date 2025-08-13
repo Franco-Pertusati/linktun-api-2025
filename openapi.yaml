@@ -1,226 +1,27 @@
 openapi: 3.0.3
-
 info:
-  title: LinkTun URL Shortener API
-  description: |
-    LinkTun is a fast and reliable URL shortening service that allows you to create and manage short links easily. 
-    This API provides endpoints for shortening URLs, expanding shortened URLs back to their original form, 
-    and managing link metadata.
+  title: LinkTun API
+  description: API for LinkTun, a URL shortener service with user authentication and link expiration.
   version: 1.0.0
-  termsOfService: https://linktun.example.com/terms
   contact:
-    name: LinkTun API Support
-    url: https://linktun.example.com/support
-    email: support@linktun.example.com
-  license:
-    name: MIT License
-    url: https://opensource.org/licenses/MIT
-
-# servers:
-#   - url: https://api.linktun.example.com/v1
-#     description: Production server
-#   - url: https://sandbox.linktun.example.com/v1
-#     description: Sandbox server for testing
-#   - url: http://localhost:3000/v1
-#     description: Local development server
-
+    name: API Support
+    email: support@linktun.com
+servers:
+  - url: http://localhost:3000
+    description: Local development server
 tags:
-  - name: URL Shortening
-    description: Operations for creating and expanding short links.
-
-paths:
-  /auth/register:
-    post:
-      tags:
-        - Authentication
-      summary: Register a new user
-      description: Creates a new user account with username, email, and password.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserRegistrationRequest"
-      responses:
-        "201":
-          description: User successfully registered
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "400":
-          description: Invalid input
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /auth/login:
-    post:
-      tags:
-        - Authentication
-      summary: Authenticate a user and return a JWT
-      description: Logs in an existing user and returns an access token for protected endpoints.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserLoginRequest"
-      responses:
-        "200":
-          description: Successfully authenticated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthResponse"
-        "401":
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /links:
-    post:
-      tags:
-        - URL Shortening
-      summary: Create a short link
-      description: |
-        Creates a new short link.  
-        - If called **without authentication**, creates an anonymous link with a 30-minute expiration.  
-        - If called **with authentication**, creates a link associated with the user and allows custom expiration.
-      security:
-        - {}
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ShortenRequest"
-      responses:
-        "201":
-          description: Short link successfully created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ShortenResponse"
-        "400":
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /links/{alias}:
-    get:
-      tags:
-        - URL Shortening
-      summary: Expand a short link
-      description: Retrieves the original URL for a given alias.
-      parameters:
-        - name: alias
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The alias of the shortened link.
-      responses:
-        "200":
-          description: Successfully expanded the link
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ExpandResponse"
-        "404":
-          description: Link not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /my-links:
-    get:
-      tags:
-        - URL Shortening
-      summary: Retrieve all links created by the authenticated user
-      description: Returns a list of links associated with the logged-in user, including metadata and expiration.
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: List of user links
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ShortenResponse'
-        '401':
-          description: Unauthorized - Missing or invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /analytics/{alias}:
-    get:
-      tags:
-        - Analytics
-      summary: Retrieve analytics for a specific short link
-      description: Returns statistics such as total clicks, unique visitors, and last accessed date for the given alias.
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: alias
-          in: path
-          required: true
-          schema:
-            type: string
-          description: The alias of the shortened link.
-      responses:
-        '200':
-          description: Link analytics retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LinkAnalytics'
-        '401':
-          description: Unauthorized - Missing or invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Link not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
+  - name: Authentication
+    description: Endpoints for user registration and login
+  - name: Links
+    description: Endpoints for creating, retrieving, and managing short links
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: "a4f56b2d-91a9-4b1e-b5c3-0f8a2f7b7c3b"
-        username:
-          type: string
-          example: "johndoe"
-        email:
-          type: string
-          format: email
-          example: "johndoe@example.com"
-        createdAt:
-          type: string
-          format: date-time
-          example: "2025-08-10T14:48:00Z"
-
-    UserRegistrationRequest:
+    RegisterRequest:
       type: object
       required:
         - username
@@ -229,17 +30,16 @@ components:
       properties:
         username:
           type: string
-          example: "johndoe"
+          example: johndoe
         email:
           type: string
           format: email
-          example: "johndoe@example.com"
+          example: johndoe@example.com
         password:
           type: string
           format: password
-          example: "StrongPass123!"
-
-    UserLoginRequest:
+          example: StrongPass123!
+    LoginRequest:
       type: object
       required:
         - email
@@ -248,26 +48,36 @@ components:
         email:
           type: string
           format: email
-          example: "johndoe@example.com"
+          example: johndoe@example.com
         password:
           type: string
           format: password
-          example: "StrongPass123!"
-
+          example: StrongPass123!
     AuthResponse:
       type: object
       properties:
-        accessToken:
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: johndoe
+            email:
+              type: string
+              example: johndoe@example.com
+        token:
           type: string
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
-        tokenType:
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    ErrorResponse:
+      type: object
+      properties:
+        message:
           type: string
-          example: "Bearer"
-        expiresIn:
-          type: integer
-          example: 3600
-
-    ShortenRequest:
+          example: An error occurred
+    LinkRequest:
       type: object
       required:
         - originalUrl
@@ -275,84 +85,233 @@ components:
         originalUrl:
           type: string
           format: uri
-          example: "https://www.example.com/some/very/long/path"
-        customAlias:
-          type: string
-          maxLength: 30
-          example: "my-custom-link"
-        expirationDate:
+          example: https://example.com
+        expiresAt:
           type: string
           format: date-time
-          example: "2025-12-31T23:59:59Z"
-
-    ShortenResponse:
+          example: 2025-08-12T12:00:00Z
+    LinkResponse:
       type: object
       properties:
-        shortUrl:
+        id:
           type: string
-          format: uri
-          example: "https://linktun.example.com/abc123"
-        alias:
-          type: string
-          example: "abc123"
-        expirationDate:
-          type: string
-          format: date-time
-          example: "2025-12-31T23:59:59Z"
-
-    ExpandResponse:
-      type: object
-      properties:
+          example: abc123
         originalUrl:
           type: string
           format: uri
-          example: "https://www.example.com/some/very/long/path"
-        alias:
+          example: https://example.com
+        shortUrl:
           type: string
-          example: "abc123"
-
-    LinkAnalytics:
-      type: object
-      properties:
-        alias:
-          type: string
-          example: "abc123"
-        totalClicks:
-          type: integer
-          example: 256
-        uniqueVisitors:
-          type: integer
-          example: 180
+          format: uri
+          example: http://linktun.com/abc123
         createdAt:
           type: string
           format: date-time
-          example: "2025-08-10T14:48:00Z"
-        lastAccessed:
+          example: 2025-08-12T11:00:00Z
+        expiresAt:
           type: string
           format: date-time
-          example: "2025-08-10T14:50:00Z"
-
-    ErrorResponse:
-      type: object
-      properties:
-        error:
-          type: string
-          example: "Invalid URL format"
-        code:
-          type: integer
-          example: 400
-
-  parameters: {}
-  responses: {}
-  requestBodies: {}
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
-security: []
-
-externalDocs:
-  description: Find more documentation about LinkTun
-  url: https://linktun.example.com/docs
+          example: 2025-08-12T12:00:00Z
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request - Invalid input or missing fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Conflict - Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate a user and return a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request - Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /links:
+    post:
+      tags:
+        - Links
+      summary: Create a new short link
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LinkRequest"
+      responses:
+        "201":
+          description: Short link created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkResponse"
+        "400":
+          description: Bad request - Invalid URL or data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - User not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      tags:
+        - Links
+      summary: Get all links for the authenticated user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of user's short links
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LinkResponse"
+        "401":
+          description: Unauthorized - User not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /links/{id}:
+    get:
+      tags:
+        - Links
+      summary: Get a short link by ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The short link ID
+      responses:
+        "200":
+          description: Short link found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkResponse"
+        "404":
+          description: Link not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - Links
+      summary: Delete a short link by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The short link ID
+      responses:
+        "204":
+          description: Link successfully deleted
+        "401":
+          description: Unauthorized - User not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Link not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

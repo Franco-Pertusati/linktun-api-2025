@@ -21,7 +21,7 @@ app.use(
 
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
-app.use("/api", routes);
+app.use("/", routes);
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({

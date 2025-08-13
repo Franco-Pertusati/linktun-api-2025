@@ -1,20 +1,46 @@
-// const User = require("../models/user.model");
-// const jwtUtil = require("../utils/jwt.util");
-// const hashUtil = require("../utils/hash.util");
+// modules/auth/auth.service.js
+const prisma = require('../config/prisma');
+const { hashPassword, comparePassword } = require('.././utils/hash');
+const { generateToken } = require('.././config/jwt');
 
-// exports.register = async ({ username, email, password }) => {
-//   const hashedPassword = await hashUtil.hashPassword(password);
-//   const newUser = await User.create({ username, email, password: hashedPassword });
-//   return { id: newUser.id, username: newUser.username, email: newUser.email };
-// };
+async function registerUser({ username, email, password }) {
+  // Verificar si ya existe el usuario
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    throw new Error('Email already registered');
+  }
 
-// exports.login = async ({ email, password }) => {
-//   const user = await User.findByEmail(email);
-//   if (!user || !(await hashUtil.verifyPassword(password, user.password))) {
-//     const err = new Error("Invalid credentials");
-//     err.status = 401;
-//     throw err;
-//   }
-//   const accessToken = jwtUtil.generateToken({ id: user.id, email: user.email });
-//   return { accessToken, tokenType: "Bearer", expiresIn: 3600 };
-// };
+  // Hashear contraseña
+  const hashed = await hashPassword(password);
+
+  // Crear usuario
+  const user = await prisma.user.create({
+    data: { username, email, password: hashed },
+  });
+
+  // Generar token
+  const token = generateToken({ id: user.id, email: user.email });
+
+  return { user: { id: user.id, username: user.username, email: user.email }, token };
+}
+
+async function loginUser({ email, password }) {
+  // Buscar usuario
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new Error('Invalid email or password');
+  }
+
+  // Comparar contraseñas
+  const isValid = await comparePassword(password, user.password);
+  if (!isValid) {
+    throw new Error('Invalid email or password');
+  }
+
+  // Generar token
+  const token = generateToken({ id: user.id, email: user.email });
+
+  return { user: { id: user.id, username: user.username, email: user.email }, token };
+}
+
+module.exports = { registerUser, loginUser };
