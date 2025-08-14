@@ -94,8 +94,8 @@ components:
       type: object
       properties:
         id:
-          type: string
-          example: abc123
+          type: integer
+          example: 123
         originalUrl:
           type: string
           format: uri
@@ -190,8 +190,7 @@ paths:
       tags:
         - Links
       summary: Create a new short link
-      security:
-        - BearerAuth: []
+      security: []
       requestBody:
         required: true
         content:
