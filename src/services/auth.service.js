@@ -42,8 +42,7 @@ async function registerUser({ username, email, password }) {
   );
 
   return {
-    user: { id: user.id, username: user.username, email: user.email },
-    token,
+    user: { id: user.id, username: user.username, email: user.email, token },
   };
 }
 

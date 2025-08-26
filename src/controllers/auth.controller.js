@@ -2,17 +2,17 @@ const { registerUser, loginUser } = require("../services/auth.service");
 
 async function register(req, res) {
   try {
-    const { username, email, password, token } = req.body;
+    const { username, email, password } = req.body;
     const result = await registerUser({ username, email, password });
 
-    res.cookie("token", token, {
+    res.cookie("token", result.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 1000 * 60 * 60,
     });
 
-    res.status(201).json(result);
+    res.status(201).json({ message: "Register succesfully" });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

@@ -21,6 +21,13 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User successfully registered. Token stored in cookies.
+
     RegisterRequest:
       type: object
       required:
@@ -53,24 +60,6 @@ components:
           type: string
           format: password
           example: StrongPass123!
-    AuthResponse:
-      type: object
-      properties:
-        user:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 1
-            username:
-              type: string
-              example: johndoe
-            email:
-              type: string
-              example: johndoe@example.com
-        token:
-          type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
     ErrorResponse:
       type: object
       properties:
@@ -130,7 +119,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthResponse"
+                $ref: "#/components/schemas/RegisterResponse"
         "400":
           description: Bad request - Invalid input or missing fields
           content:
@@ -166,7 +155,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthResponse"
+                $ref: "#/components/schemas/RegisterResponse"
         "400":
           description: Bad request - Invalid input
           content:
