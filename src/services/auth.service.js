@@ -59,10 +59,7 @@ async function loginUser({ email, password }) {
 
   const token = generateToken({ id: user.id, email: user.email });
 
-  return {
-    user: { id: user.id, username: user.username, email: user.email },
-    token,
-  };
+  return { email: user.email, username: user.username, token };
 }
 
 module.exports = { registerUser, loginUser };
