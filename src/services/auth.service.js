@@ -1,4 +1,3 @@
-// modules/auth/auth.service.js
 const prisma = require("../config/prisma");
 const { hashPassword, comparePassword } = require(".././utils/hash");
 const { generateToken } = require(".././config/jwt");
