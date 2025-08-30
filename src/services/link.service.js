@@ -9,11 +9,12 @@ const prisma = new PrismaClient();
  * @param {Date|null} data.expiresAt - Fecha de expiración (null si no expira)
  * @param {number|null} data.userId - ID del usuario (null si anónimo)
  */
-async function createLink({ originalUrl, shortCode, expiresAt, userId }) {
+async function createLink({ originalUrl, shortCode, expiresAt, userId, favIcon }) {
   return prisma.link.create({
     data: {
       originalUrl,
       shortCode,
+      favIcon,
       expiresAt,
       userId,
     },

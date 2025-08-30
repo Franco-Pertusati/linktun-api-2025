@@ -93,6 +93,10 @@ components:
           type: string
           format: uri
           example: http://linktun.com/abc123
+        favIcon:
+          type: string
+          format: uri
+          example: https://example.com/favicon.ico
         createdAt:
           type: string
           format: date-time

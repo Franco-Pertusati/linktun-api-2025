@@ -5,6 +5,11 @@ function generateShortCode() {
   return Math.random().toString(36).substring(2, 8);
 }
 
+function getGoogleFavicon(url) {
+  const { hostname } = new URL(url);
+  return `https://www.google.com/s2/favicons?sz=64&domain=${hostname}`;
+}
+
 // Crear un link (para usuario registrado o anónimo)
 async function createLink(req, res) {
   try {
@@ -20,10 +25,12 @@ async function createLink(req, res) {
     }
 
     const shortCode = generateShortCode();
+    const favIcon = getGoogleFavicon(originalUrl)
 
     const newLink = await linkService.createLink({
       originalUrl,
       shortCode,
+      favIcon,
       expiresAt: finalExpiresAt,
       userId,
     });
