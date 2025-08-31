@@ -106,6 +106,39 @@ components:
           format: date-time
           example: 2025-08-12T12:00:00Z
 paths:
+  /{shortCode}:
+    get:
+      tags:
+        - Links
+      summary: Redirect to original URL using short code
+      parameters:
+        - in: path
+          name: shortCode
+          schema:
+            type: string
+          required: true
+          description: The short code for redirection
+      responses:
+        "302":
+          description: Redirect to original URL
+        "404":
+          description: Link not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "410":
+          description: Link expired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /auth/register:
     post:
       tags:
@@ -258,37 +291,6 @@ paths:
                   $ref: "#/components/schemas/LinkResponse"
         "401":
           description: Unauthorized - User not logged in
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-  /links/{id}:
-    get:
-      tags:
-        - Links
-      summary: Get a short link by ID
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: string
-          required: true
-          description: The short link ID
-      responses:
-        "200":
-          description: Short link found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LinkResponse"
-        "404":
-          description: Link not found
           content:
             application/json:
               schema:

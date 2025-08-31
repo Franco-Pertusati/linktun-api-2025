@@ -10,7 +10,7 @@ const authenticate = require("../middlewares/authenticate.middleware");
 
 router.post("/", authenticate(false), createLink);
 
-router.get("/:shortCode", getLinkByCode);
+// router.get("/:shortCode", getLinkByCode);
 
 router.get("/", authenticate(true), getUserLinks);
 
