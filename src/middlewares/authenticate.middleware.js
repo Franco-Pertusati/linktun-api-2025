@@ -1,18 +1,10 @@
-const jwt = require("jsonwebtoken");
+const { verifyToken } = require("../config/jwt");
+
 
 function authenticate(required = true) {
   return (req, res, next) => {
-    const authHeader = req.headers.authorization;
+    const token = req.cookies?.access_token;
 
-    if (!authHeader) {
-      if (required) {
-        return res.status(401).json({ message: "Authorization header missing" });
-      }
-      req.user = null; // Anónimo
-      return next();
-    }
-
-    const token = authHeader.split(" ")[1];
     if (!token) {
       if (required) {
         return res.status(401).json({ message: "Token missing" });
@@ -21,17 +13,16 @@ function authenticate(required = true) {
       return next();
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) {
-        if (required) {
-          return res.status(401).json({ message: "Invalid or expired token" });
-        }
-        req.user = null;
-        return next();
-      }
-      req.user = decoded;
+    try {
+      req.user = verifyToken(token);
       next();
-    });
+    } catch (err) {
+      if (required) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+      }
+      req.user = null;
+      next();
+    }
   };
 }
 
