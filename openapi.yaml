@@ -24,6 +24,9 @@ components:
     RegisterResponse:
       type: object
       properties:
+        username:
+          type: string
+          example: johndoe
         message:
           type: string
           example: User successfully registered. Token stored in cookies.
@@ -46,6 +49,7 @@ components:
           type: string
           format: password
           example: StrongPass123!
+
     LoginRequest:
       type: object
       required:
@@ -66,6 +70,7 @@ components:
         message:
           type: string
           example: An error occurred
+          
     LinkRequest:
       type: object
       required:

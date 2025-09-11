@@ -1,4 +1,5 @@
 const linkService = require("../services/link.service");
+const jwt = require("jsonwebtoken");
 
 // Función para generar un shortCode único
 function generateShortCode() {
@@ -14,7 +15,20 @@ function getGoogleFavicon(url) {
 async function createLink(req, res) {
   try {
     const { originalUrl, expiresAt } = req.body;
-    const userId = req.user ? req.user.id : null;
+    let userId = null;
+
+    // Obtener userId desde el access_token en las cookies
+    const token = req.cookies?.access_token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.id;
+      } catch (err) {
+        // Token inválido, se trata como anónimo
+        userId = null;
+      }
+    }
+
 
     // Si es anónimo → expira en 30 minutos
     let finalExpiresAt = null;
@@ -25,7 +39,7 @@ async function createLink(req, res) {
     }
 
     const shortCode = generateShortCode();
-    const favIcon = getGoogleFavicon(originalUrl)
+    const favIcon = getGoogleFavicon(originalUrl);
 
     const newLink = await linkService.createLink({
       originalUrl,
@@ -87,7 +101,9 @@ async function deleteLink(req, res) {
     const result = await linkService.deleteLink(parseInt(id), userId);
 
     if (result.count === 0) {
-      return res.status(404).json({ message: "Link not found or not owned by user" });
+      return res
+        .status(404)
+        .json({ message: "Link not found or not owned by user" });
     }
 
     return res.status(204).send();
