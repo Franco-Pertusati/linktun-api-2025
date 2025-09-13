@@ -14,7 +14,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://linktun25.vercel.app/",
+    origin: process.env.CORS_ORIGIN,
     credentials: true,
   })
 );
