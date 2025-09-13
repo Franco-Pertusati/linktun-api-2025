@@ -12,8 +12,8 @@ async function register(req, res) {
     const { user, token } = await registerUser({ username, email, password });
     res.cookie("access_token", token, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      secure: true,
     });
     res.status(201).json({ user, message: "Registration successful" });
   } catch (err) {
@@ -28,8 +28,8 @@ async function login(req, res) {
     const { user, token } = await loginUser({ email, password });
     res.cookie("access_token", token, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      secure: true,
     });
     res.json({ user, message: "Login successful" });
   } catch (err) {
