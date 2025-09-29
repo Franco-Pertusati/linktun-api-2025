@@ -29,7 +29,6 @@ async function createLink(req, res) {
       }
     }
 
-
     // Si es anónimo → expira en 30 minutos
     let finalExpiresAt = null;
     if (!userId) {
@@ -113,7 +112,13 @@ async function deleteLink(req, res) {
   }
 }
 
+//Link demo hardcodeado
+async function demoLink(req, res) {
+  return res.redirect('https://www.youtube.com/');
+}
+
 module.exports = {
+  demoLink,
   createLink,
   getLinkByCode,
   getUserLinks,
